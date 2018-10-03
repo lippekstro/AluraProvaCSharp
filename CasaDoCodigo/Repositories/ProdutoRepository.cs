@@ -20,36 +20,34 @@ namespace CasaDoCodigo.Repositories
             return dbSet.Include(p => p.Categoria).ToList();
         }
 
-        public List<Produto> GetProdutos(int id)
+        public IList<Produto> GetProdutos(int id)
         {
             return dbSet.Where(p => p.Categoria.Id == id).Include(p => p.Categoria).ToList();
         }
 
+        public IList<Produto> GetProdutos(string pesquisa)
+        {
+            if (string.IsNullOrEmpty(pesquisa))
+            {
+                return GetProdutos();
+            }
+
+            pesquisa = pesquisa.ToUpper();
+
+            return dbSet.Where(p => p.Categoria.Nome.ToUpper().Contains(pesquisa) || p.Nome.ToUpper().Contains(pesquisa)).Include(p => p.Categoria).ToList();
+        }
+
         public void SaveProdutos(List<Livro> livros)
         {
-            var categorias = new List<string>();
-
             foreach (var livro in livros)
             {
-                categorias.Add(livro.Categoria);
-            }
-            categoriaRepository.AddListaCat(categorias);
-
-            foreach (var livro in livros)
-            {
+                categoriaRepository.AddCat(livro.Categoria);
                 if (!dbSet.Where(p => p.Codigo == livro.Codigo).Any())
                 {
                     var categoria = categoriaRepository.GetCategoria(livro.Categoria);
-                    if (categoria == null)
-                    {
-                        categoria = new Categoria(livro.Categoria);
-                        categoriaRepository.AddCat(categoria);
-                    }
-                    
                     dbSet.Add(new Produto(livro.Codigo, livro.Nome, livro.Preco, categoria));
                 }
             }
-            contexto.SaveChanges();
         }
     }
 

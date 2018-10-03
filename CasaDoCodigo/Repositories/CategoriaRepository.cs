@@ -6,11 +6,10 @@ namespace CasaDoCodigo.Repositories
 {
     public interface ICategoriaRepository
     {
-        void AddCat(Categoria categoria);
         Categoria GetCategoria(int categoriaId);
         Categoria GetCategoria(string categoria);
         List<Categoria> GetCategorias();
-        void AddListaCat(IList<string> lista);
+        void AddCat(string categoria);
     }
 
     public class CategoriaRepository : BaseRepository<Categoria>, ICategoriaRepository
@@ -19,24 +18,15 @@ namespace CasaDoCodigo.Repositories
         {
         }
 
-        public void AddCat(Categoria categoria) //adiciona categorias
+        public void AddCat(string categoria) //adiciona categoria
         {
-            if (!dbSet.Where(c => c.Nome == categoria.Nome).Any())
+            var categoriaNome = dbSet.Where(c => c.Nome == categoria).FirstOrDefault();
+            if (categoriaNome == null)
             {
-                dbSet.Add(new Categoria(categoria.Nome));
-                contexto.SaveChanges();
+                categoriaNome = new Categoria(categoria);
+                contexto.Add(categoriaNome);
             }
-        }
-
-        public void AddListaCat(IList<string> lista) //adiciona categorias em lista
-        {
-            foreach (var categoria in lista)
-            {
-                if(this.GetCategoria(categoria) == null)
-                {
-                    AddCat(new Categoria(categoria));
-                }
-            }
+            contexto.SaveChanges();
         }
 
         public Categoria GetCategoria(int categoriaId) //retorna categorias pelo id
