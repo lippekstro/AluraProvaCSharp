@@ -1,9 +1,7 @@
 ﻿using CasaDoCodigo.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CasaDoCodigo.Repositories
 {
@@ -19,27 +17,39 @@ namespace CasaDoCodigo.Repositories
 
         public IList<Produto> GetProdutos()
         {
-            return dbSet.ToList();
+            return dbSet.Include(p => p.Categoria).ToList();
         }
 
-        public async Task SaveProdutos(List<Livro> livros)
+        public List<Produto> GetProdutos(int id)
         {
-            var categoria = new Categoria();
+            return dbSet.Where(p => p.Categoria.Id == id).Include(p => p.Categoria).ToList();
+        }
+
+        public void SaveProdutos(List<Livro> livros)
+        {
+            var categorias = new List<string>();
 
             foreach (var livro in livros)
             {
-                categoriaRepository.AddCat(livro.Categoria);
+                categorias.Add(livro.Categoria);
             }
+            categoriaRepository.AddListaCat(categorias);
 
             foreach (var livro in livros)
             {
                 if (!dbSet.Where(p => p.Codigo == livro.Codigo).Any())
                 {
-                    categoria = new Categoria(livro.Categoria);
+                    var categoria = categoriaRepository.GetCategoria(livro.Categoria);
+                    if (categoria == null)
+                    {
+                        categoria = new Categoria(livro.Categoria);
+                        categoriaRepository.AddCat(categoria);
+                    }
+                    
                     dbSet.Add(new Produto(livro.Codigo, livro.Nome, livro.Preco, categoria));
                 }
             }
-            await contexto.SaveChangesAsync();
+            contexto.SaveChanges();
         }
     }
 
