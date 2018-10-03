@@ -69,9 +69,10 @@ namespace CasaDoCodigo.Controllers
             return pedidoRepository.UpdateQuantidade(itemPedido);
         }
 
-        public IActionResult BuscaDeProdutos()
+        public IActionResult BuscaDeProdutos(string pesquisa = "")
         {
-            return View(produtoRepository.GetProdutos());
+            var buscaDeProdutos = new BuscaDeProdutosViewModel(produtoRepository.GetProdutos(pesquisa), pesquisa);
+            return View(buscaDeProdutos);
         }
     }
 }

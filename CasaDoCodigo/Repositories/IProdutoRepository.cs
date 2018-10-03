@@ -7,5 +7,6 @@ namespace CasaDoCodigo.Repositories
     {
         void SaveProdutos(List<Livro> livros);
         IList<Produto> GetProdutos();
+        IList<Produto> GetProdutos(string pesquisa);
     }
 }
