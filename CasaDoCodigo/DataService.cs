@@ -1,10 +1,8 @@
-﻿using CasaDoCodigo.Models;
-using CasaDoCodigo.Repositories;
+﻿using CasaDoCodigo.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace CasaDoCodigo
 {
@@ -20,18 +18,18 @@ namespace CasaDoCodigo
             this.produtoRepository = produtoRepository;
         }
 
-        public async Task InicializaDB()
+        public void InicializaDB()
         {
-            await contexto.Database.MigrateAsync();
+            contexto.Database.Migrate();
 
-            List<Livro> livros = await GetLivros();
+            List<Livro> livros = GetLivros();
 
-            await produtoRepository.SaveProdutos(livros);
+            produtoRepository.SaveProdutos(livros);
         }
 
-        private static async Task<List<Livro>> GetLivros()
+        private static List<Livro> GetLivros()
         {
-            var json = await File.ReadAllTextAsync("livros.json");
+            var json = File.ReadAllText("livros.json");
             var livros = JsonConvert.DeserializeObject<List<Livro>>(json);
             return livros;
         }
